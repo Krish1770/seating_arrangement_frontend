@@ -14,6 +14,7 @@ const Seating = () => {
   const [teamNameList, setTeamNameList] = useState([]);
   const [teamKeyList, setTeamKeyList] = useState([]);
   const [preference, setPreference] = useState(2);
+  const [orderedTeamList, setOrderedTeamList] = useState([]);
   useEffect(() => {
     loadLayOut();
   }, []);
@@ -40,7 +41,7 @@ const Seating = () => {
       arr.push(team.TeamName);
     });
     setTeamNameList(arr);
-    console.log(arr);
+    // console.log(arr);
     const res = await axios.post("http://localhost:8080/allocation", {
       companyName: "Divum",
       teamDtoList: teamList,
@@ -51,12 +52,16 @@ const Seating = () => {
     setResult(res);
     setOutputArray(res.data.data.allocation);
     console.log(outputArray);
+    // arr.map((teamName) => {
+    //   teamKeyList.push(res.data.data.teamIds[teamName]);
+    // });
     let teamKeyList = [];
-    arr.map((teamName) => {
-      teamKeyList.push(res.data.data.teamIds[teamName]);
+    res.data.data.teamReferenceList.map((team) => {
+      teamKeyList.push(team.key);
     });
-    console.log("key list", teamKeyList);
+    // console.log("key list", teamKeyList);
     setTeamKeyList(teamKeyList);
+    setOrderedTeamList(res.data.data.teamReferenceList);
   };
   const handleCloseBtn = (index) => {
     let arr = [...teamList];
@@ -84,7 +89,7 @@ const Seating = () => {
     setTeamList(arr);
     console.log(arr);
   };
-  console.log("A2".includes("A"), teamKeyList);
+  // console.log("A2".includes("A"), teamKeyList);
   const handleReturnColor = (teamKeyValue) => {
     // let resColor = "grey";
     // resColor = teamKeyList.map((key, index) => {
@@ -254,12 +259,12 @@ const Seating = () => {
                 <th>Team Key</th>
               </thead>
               <tbody>
-                {teamNameList &&
-                  teamNameList.map((teamName) => {
+                {orderedTeamList &&
+                  orderedTeamList.map((team) => {
                     return (
                       <tr>
-                        <td>{teamName}</td>
-                        <td>{result?.data?.data?.teamIds[teamName]}</td>
+                        <td>{team.name}</td>
+                        <td>{team.key}</td>
                       </tr>
                     );
                   })}
