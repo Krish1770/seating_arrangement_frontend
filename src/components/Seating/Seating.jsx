@@ -1,12 +1,17 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import "./Seating.css";
-import { Link } from "react-router-dom";
+import { layOut } from "../../CreateContext";
+import { Link, useLocation } from "react-router-dom";
 import { colorList } from "../../constants/colorList";
 
 const Seating = () => {
   const [isOutputGenerated, setIsOutput] = useState(false);
-
+  // const location=useLocation();
+  // const res=location.state;
+   
+    const {res,setRes}=useContext(layOut);
+    console.log(res)
   const [outputArray, setOutputArray] = useState();
   const [layOut, setLayOut] = useState(null);
 
@@ -30,7 +35,9 @@ const Seating = () => {
   });
   const loadLayOut = async () => {
     console.log("a");
-    const res = await axios.get("http://localhost:8080/Divum-layout");
+    // const res = await axios.get("http://localhost:8080/Divum-layout");
+  
+    console.log(res,"sdfsgfdx");
     setLayOut(res);
     console.log("a");
   };

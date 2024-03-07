@@ -1,8 +1,4 @@
-/* body{
-    background-color:#0b032d;
-} */
-
-.Home{
+.Form{
     display: flex;
     flex-direction: column;
     font-size: large;
@@ -21,7 +17,7 @@
     background-color:#f67e7d ;
      justify-content: center;
 }
-.Home-container{
+.Form-container{
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -29,7 +25,7 @@
 
 }
 
-.Home-input{
+.Form-input{
     gap: 0.7rem;
     display: flex;
     justify-content: center;
@@ -38,28 +34,19 @@
 }
 
 
-.Home-Buttons{
+.Form-Buttons{
 
     display: flex;
     flex-direction: row;
     gap: 3rem;
-    padding-left:6rem;
+    padding-left: 3.4rem;
     justify-content: center;
     align-items: center;
    
     width: fit-content;
 }
 
-.Home-Buttons button{
+.Form-Buttons button{
     height: fit-content;
     font-size: large;
-}
-
-
-
-.Home-Heading{
-    display: flex;
-    flex-direction: column;
-    align-items: center ;
-    justify-self: center;
 }
