@@ -1,29 +1,35 @@
 import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import "./Seating.css";
-import { layOut } from "../../CreateContext";
-import { Link, useLocation } from "react-router-dom";
+import { CompanyName, layOut } from "../../CreateContext";
+import { Link, json, useLocation } from "react-router-dom";
 import { colorList } from "../../constants/colorList";
 
 const Seating = () => {
   const [isOutputGenerated, setIsOutput] = useState(false);
-  // const location=useLocation();
-  // const res=location.state;
-   
-    const {res,setRes}=useContext(layOut);
-    console.log(res)
+  const { companyName } = useContext(CompanyName);
+
+  // const []
+  const formData = new FormData();
+
+  const location = useLocation();
+  const res = location.state.data;
+  const flag = location.state.flag;
+  let availableSpaces = location.state.availableSpaces;
   const [outputArray, setOutputArray] = useState();
   const [layOut, setLayOut] = useState(null);
-
+  const [file, setFile] = useState(null);
   const [teamList, setTeamList] = useState([]);
   const [teamNameList, setTeamNameList] = useState([]);
   const [teamKeyList, setTeamKeyList] = useState([]);
   const [preference, setPreference] = useState(2);
   const [orderedTeamList, setOrderedTeamList] = useState([]);
+  const [space, setSpace] = useState(availableSpaces);
+
   useEffect(() => {
     loadLayOut();
   }, []);
-
+  // console.log(teamList);
   const [teamDetails, setteamDetails] = useState({});
   let mymap = new Map([
     ["A", 1],
@@ -31,16 +37,23 @@ const Seating = () => {
   ]);
   const [result, setResult] = useState(null);
   mymap.forEach((value) => {
-    console.log("val > ", value);
+    // console.log("val > ", value);
   });
   const loadLayOut = async () => {
-    console.log("a");
+    // console.log("a");
     // const res = await axios.get("http://localhost:8080/Divum-layout");
-  
-    console.log(res,"sdfsgfdx");
+
+    // console.log(res,"sdfsgfdx");
     setLayOut(res);
-    console.log("a");
+    // console.log("a");
   };
+
+  const handleFile = (e) => {
+    setFile(e.target.files[0]);
+  };
+  console.log(file)
+  formData.append('file', file);
+  console.log(formData)
 
   const handleSubmit = async () => {
     let arr = [];
@@ -50,15 +63,16 @@ const Seating = () => {
     setTeamNameList(arr);
     // console.log(arr);
     const res = await axios.post("http://localhost:8080/allocation", {
-      companyName: "Divum",
+      companyName: companyName,
       teamDtoList: teamList,
       preference: preference,
     });
-    console.log("result", res);
+    // console.log("result", res);
+    // console.log(availableSpaces,"availableSpaces");
     setIsOutput(true);
     setResult(res);
     setOutputArray(res.data.data.allocation);
-    console.log(outputArray);
+    // console.log(outputArray);
     // arr.map((teamName) => {
     //   teamKeyList.push(res.data.data.teamIds[teamName]);
     // });
@@ -72,9 +86,30 @@ const Seating = () => {
   };
   const handleCloseBtn = (index) => {
     let arr = [...teamList];
+    setSpace(space + arr[index].TeamCount);
     arr = arr.slice(0, index).concat(arr.slice(index + 1, arr.length));
     setTeamList(arr);
+    // console.log(arr[])
   };
+
+
+
+  const handleFileSubmit=async()=>
+  {
+    try{
+      const res=await axios.post("http://localhost:8080/csvFile",formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+      )
+      console.log(res)
+    }catch(error){
+      console.log(error)
+    }
+
+  }
 
   const handleAddTeam = () => {
     let arr = [...teamList];
@@ -83,37 +118,38 @@ const Seating = () => {
       TeamCount: "",
     });
     setTeamList(arr);
-    console.log(">>", arr);
+    // console.log(">>", arr);
   };
-
+  console.log(teamList);
+  teamList.map((e) => {
+    console.log(e.TeamName !== "");
+    console.log(e.TeamCount !== "" && e.TeamCount > 0);
+  });
   const handleOnChange = (e, index) => {
     let arr = [...teamList];
+    let spaces = space;
+    if (teamList[index].TeamCount === "" && e.target.name === "TeamCount") {
+      spaces -= Number(e.target.value);
+      setSpace(spaces);
+    }
+
     arr[index] = {
       ...arr[index],
+
       [e.target.name]:
         e.target.name === "TeamName" ? e.target.value : Number(e.target.value),
     };
+
+    if (teamList[index].TeamCount !== "" && e.target.name === "TeamCount") {
+      spaces += teamList[index].TeamCount;
+      spaces -= Number(e.target.value);
+      setSpace(spaces);
+    }
     setTeamList(arr);
-    console.log(arr);
   };
+  // console.log(maxSpaceValue)
   // console.log("A2".includes("A"), teamKeyList);
   const handleReturnColor = (teamKeyValue) => {
-    // let resColor = "grey";
-    // resColor = teamKeyList.map((key, index) => {
-    //   console.log("key >",teamKeyValue,key,teamKeyValue ? teamKeyValue.includes(key) : "NO");
-    //   // if (teamKeyValue != null && teamKeyValue.includes(key)) {
-    //   //   // return colorList[index];
-    //   //   return "red";
-    //   // }
-    //   // return teamKeyValue ? teamKeyValue.includes(key) ? return "red" : ""
-    //   if(teamKeyValue){
-    //     console.log("Entered",teamKeyValue.includes(key));
-    //     if(teamKeyValue.includes(key)){
-    //       return "red";
-    //     }
-    //   }
-    // });
-
     for (let i = 0; i < teamKeyList.length; i++) {
       if (teamKeyValue && teamKeyValue.includes(teamKeyList[i])) {
         return colorList[i];
@@ -123,35 +159,70 @@ const Seating = () => {
   };
   const handlePrefOnClick = (prefNum) => {
     setPreference(prefNum);
-  };
+  }
+
+
+
+
   return (
     <div className="seating">
       <div className="container-1">
         <table className="MyTable">
           <tbody>
-            {layOut?.data?.data?.layOut.map((row, i) => {
-              return (
-                <tr key={i}>
-                  {row.map((value, j) => {
-                    return (
-                      <td
-                        key={j}
-                        className="grid-box"
-                        style={{
-                          backgroundColor: value === 1 ? "#2ecc71" : "#f1f2f6",
-                        }}
-                      >
-                        {value}
-                      </td>
-                    );
-                  })}
-                </tr>
-              );
-            })}
+            {flag ? (
+              <>
+                {res.layOut.map((row, i) => {
+                  return (
+                    <tr key={i}>
+                      {row.map((value, j) => {
+                        return (
+                          <td
+                            key={j}
+                            className="grid-box"
+                            style={{
+                              backgroundColor:
+                                value === 1 ? "#2ecc71" : "#f1f2f6",
+                            }}
+                          >
+                            {value}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                })}
+              </>
+            ) : (
+              <>
+                {res.map((row, i) => {
+                  return (
+                    <tr key={i}>
+                      {row.map((value, j) => {
+                        return (
+                          <td
+                            key={j}
+                            className="grid-box"
+                            style={{
+                              backgroundColor:
+                                value === 1 ? "#2ecc71" : "#f1f2f6",
+                            }}
+                          >
+                            {value}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                })}
+              </>
+            )}
           </tbody>
         </table>
         <div className="form-wrapper">
+          <h3>availableSpaces:{space}</h3>
+
           <h2>Add Team</h2>
+
           <div className="btn-wrapper">
             <button className="add-btn" onClick={handleAddTeam}>
               + Add
@@ -203,10 +274,15 @@ const Seating = () => {
                         type="number"
                         name="TeamCount"
                         value={data.TeamCount}
+                        min="0"
+                        // max={something}
+                        max={availableSpaces}
+                        disabled={space <= 0}
                         className="input-box"
                         placeholder={"Enter Team " + (index + 1) + " Count"}
                         onChange={(e) => handleOnChange(e, index)}
                       />
+
                       <button
                         className="cross-btn"
                         onClick={() => handleCloseBtn(index)}
@@ -216,6 +292,15 @@ const Seating = () => {
                     </div>
                   );
                 })}
+              <div className="input-file">
+                OR
+                <input
+                  onChange={handleFile}
+                  className="input-box1"
+                  type="file"
+                />
+                <button onClick={handleFileSubmit} className="click-btn">Verify</button>
+              </div>
             </div>
           </div>
           <button className="submit-btn" onClick={handleSubmit}>
@@ -223,13 +308,15 @@ const Seating = () => {
           </button>
         </div>
       </div>
-      <div className="container-2">
+      {/* <h3>{space}</h3> */}
+      <div className="container-1">
         <div className="layout-wrapper">
           {isOutputGenerated && (
             <>
               <h2>Team Allocation Layout</h2>
               <table className="MyTable">
                 <tbody>
+                  {/* {console.log("res >>", res)} */}
                   {outputArray.map((row, i) => {
                     return (
                       <tr key={i}>
@@ -239,10 +326,13 @@ const Seating = () => {
                               key={j}
                               className="grid-box"
                               style={{
-                                backgroundColor:
-                                  layOut?.data?.data?.layOut[i][j] === 1
+                                backgroundColor: flag
+                                  ? res.layOut[i][j] === 1
                                     ? handleReturnColor(value)
-                                    : "#f1f2f6",
+                                    : "#f1f2f6"
+                                  : res?.[i][j] === 1
+                                  ? handleReturnColor(value)
+                                  : "#f1f2f6",
                               }}
                             >
                               {value}
@@ -272,6 +362,7 @@ const Seating = () => {
                       <tr>
                         <td>{team.name}</td>
                         <td>{team.key}</td>
+                    
                       </tr>
                     );
                   })}

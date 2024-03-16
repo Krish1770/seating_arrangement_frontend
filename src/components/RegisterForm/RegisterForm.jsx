@@ -1,6 +1,6 @@
 import axios from "axios";
 import "./RegisterForm.css";
-import React, { useContext, useState } from "react";
+import React, {useState } from "react";
 import CompanyName from "../../CreateContext";
 import { LayoutDesign } from "../../LayoutDesign/LayoutDesign";
 const RegisterForm = () => {

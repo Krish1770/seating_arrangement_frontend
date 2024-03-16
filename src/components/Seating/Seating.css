@@ -23,12 +23,14 @@
 }
 
 .container-1 {
-    display: flex;
+    display: grid;
+    grid-template-columns: 2fr 2fr;
     gap: 1rem;
 }
 
 .add-btn,
-.submit-btn {
+.submit-btn,
+.click-btn {
     padding: .6rem;
     border: none;
     font-size: 1rem;
@@ -47,6 +49,24 @@
     background-color: #007bff;
 
 }
+.input-file
+{
+   
+    border-style: none;
+    display: flex;
+    flex-direction: column;
+
+}
+.input-box1
+{
+       width: 16rem;
+       padding: 1rem;
+}
+.click-btn
+{
+    background-color: #df6c77;
+}
+
 .submit-btn:hover {
     background-color: #1b83f1;
 }
@@ -88,7 +108,7 @@
 }
 .team-list-input-wrapper {
     width: 100%;
-    height: 33rem;
+   height: 34rem;
 }
 .form-wrapper .input-box {
     padding: .5rem;
@@ -157,6 +177,12 @@
     display: flex;
     flex-direction: column;
     gap: .5rem;
+}
+.input-file
+{
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
   
 /* 

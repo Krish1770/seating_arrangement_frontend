@@ -8,17 +8,37 @@ const Home = () => {
   const { companyName, setCompanyName } = useContext(CompanyName);
   const navigate = useNavigate();
   const [isCompanyPresent, setCompanyPresent] = useState(false);
-  console.log(companyName);
   useEffect(() => {
     loadScreen();
   });
 
   const loadScreen = async () => {};
 
-  const handleYes = async () => {
-    navigate("/seating");
-  };
+//   const handleYes = async () => {
+//     const name=companyName
+//     const res =await axios.get(`http://localhost:8080/layout/${name}`);
+//     const result=handleResult(res)
+//     navigate("/seating",{state:{layOut:result}});
+//   };
+// function handleResult(data){
+//   return data
+// }
+const handleYes = async () => {
+  const name = companyName;
+  try {
+      const res = await axios.get(`http://localhost:8080/layout/${name}`);
+      const result = handleResult(res.data.data); 
+      console.log()
+      console.log(result.layOut)
+      navigate("/seating", { state: { data: result.layOut ,flag:false,availableSpaces:result.availableSpaces} });
+  } catch (error) {
+      console.error("Error fetching layout:", error);
+  }
+};
 
+function handleResult(data) {
+  return data;
+}
   const handleNo = async () => {
     navigate("/RegisterForm");
   };
@@ -26,6 +46,9 @@ const Home = () => {
   return (
     <div className="Home">
       <div className="Home-container">
+        <div >
+          <img src="" alt="" />
+        </div>
         <h2 className="Home-Heading">Welcome Page</h2>
 
         <h3>enter the companyName</h3>
